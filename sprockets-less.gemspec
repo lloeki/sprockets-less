@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Sprockets::Less::VERSION
   s.authors     = ["Loic Nageleisen"]
   s.email       = ["loic.nageleisen@gmail.com"]
-  s.homepage    = "http://github.com/metaskills/sprockets-less"
+  s.homepage    = "http://github.com/lloeki/sprockets-less"
   s.summary     = %q{The dynamic stylesheet language for the Sprockets asset pipeline.}
   s.description = %q{The dynamic stylesheet language for the Sprockets asset pipeline.}
   s.files         = `git ls-files`.split("\n")
