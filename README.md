@@ -98,5 +98,5 @@ Please note that these helpers are only available server-side, and something lik
 
 ## License
 
-Sprocket::Less is Copyright (c) 2012 Loic Nageleisen, <loic.nageleisen@gmail.com>
+Sprocket::Less is released under the MIT license. See LICENSE file for details.
 
