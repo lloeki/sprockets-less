@@ -12,6 +12,10 @@ Once you have set up Sprockets to behave on Rails 2.3 (see RAILS_UP for how to u
 
     gem 'less-rails', :git => https://github.com/lloeki/less-rails.git, :branch => 'rails-2.3-backport'
 
+You will also need to add `sprockets-less` to your gemfile, as `less-rails` the usage step depends on it.
+
+    gem 'sprockets-less'
+
 ## Usage
 
 In your Rack application, setup Sprockets as you normally would, and require "sprockets-less":
