@@ -6,12 +6,6 @@ When using Sprockets 2.x with Less you will eventually run into a pretty big iss
 
 _Note: If you use Rails 3.1, you may want to use the [less-rails gem](http://github.com/rails/less-rails). But if you want to use Sprockets and Less anywhere else, like Sinatra, use `sprockets-less`._
 
-## Installing
-
-Once you have set up Sprockets to behave on Rails 2.3 (see RAILS_UP for how to uprate your app), just bundle up less-rails in your Gemfile. This will pull in less as a runtime dependency too. This gem shall not be published at rubygems under this name, so be sure to set up both git and the branch correctly.
-
-    gem 'less-rails', :git => https://github.com/lloeki/less-rails.git, :branch => 'rails-2.3-backport'
-
 ## Usage
 
 In your Rack application, setup Sprockets as you normally would, and require "sprockets-less":
