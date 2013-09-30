@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 gemspec
 
 gem "therubyracer", ">= 0.10.1", :require => nil, :platforms => :ruby
