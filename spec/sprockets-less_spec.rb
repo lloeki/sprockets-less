@@ -130,7 +130,7 @@ describe Sprockets::Less do
     @assets.file 'main.css.less', "body {\n  color: #00f;\n}"
 
     asset = @env['main.css']
-    asset.to_s.should == "body{color:#00f}\n"
+    asset.to_s.should == "body{color:#00f}"
     Sprockets::Less.options.delete(:compress)
   end
 
