@@ -1,6 +1,6 @@
+require 'sprockets'
 require 'sprockets/less/version'
 require 'sprockets/less/template'
-require 'sprockets/engines'
 
 module Sprockets
   module Less
