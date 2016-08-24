@@ -1,4 +1,25 @@
 language: ruby
+sudo: false
+
+cache: bundler
+
+bundler_args: --jobs 3 --retry 3 --binstubs
+
+before_install:
+  - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
+  - gem uninstall -aIx bundler
+  - gem install bundler -v 1.13.1
+
+install:
+- bundle install --path vendor/bundle
+
+script: bundle exec rake
+
 rvm:
-  - 2.0.0
-  - 2.1.0
+- 2.2.2
+- 2.2.3
+- 2.3.1
+env:
+ - RAILS_ENV=test RACK_ENV=test "bundler=1.13.1"
+notifications:
+  email: false
