@@ -1,79 +1,3 @@
-require 'less'
-
-module Sprockets
-  module Less
-
-    # Sprockets-aware Less functions
-    module Functions
-      def asset_data_url(path)
-        "url(#{sprockets_context.asset_data_uri(path)})"
-      end
-      
-      def asset_path(asset)
-        public_path(asset).inspect
-      end
-      
-      def asset_url(asset)
-        "url(#{public_path(asset)})"
-      end
-      
-      def image_path(img)
-        sprockets_context.image_path(img).inspect
-      end
-
-      def asset_data_uri(source)
-        "url(#{sprockets_context.asset_data_uri(source.value)})"
-      end
-
-      def image_url(img)
-        "url(#{sprockets_context.image_path(img)})"
-      end
-
-      def video_path(video)
-        sprockets_context.video_path(video).inspect
-      end
-      
-      def video_url(video)
-        "url(#{sprockets_context.video_path(video)})"
-      end
-      
-      def audio_path(audio)
-        sprockets_context.audio_path(audio).inspect
-      end
-      
-      def audio_url(audio)
-        "url(#{context.audio_path(audio)})"
-      end
-      
-      def javascript_path(javascript)
-        context.javascript_path(javascript).inspect
-      end
-      
-      def javascript_url(javascript)
-        "url(#{context.javascript_path(javascript)})"
-      end
-      
-      def stylesheet_path(stylesheet)
-        sprockets_context.stylesheet_path(stylesheet).inspect
-      end
-      
-      def stylesheet_url(stylesheet)
-        "url(#{sprockets_context.stylesheet_path(stylesheet)})"
-      end
-      
-      protected
-      
-      def public_path(asset)
-        sprockets_context.asset_paths.compute_public_path asset, '/assets'
-      end
-      
-      def context_asset_data_uri(path)
-        
-      end
-    end
-  end
-end
-
 module Less
 
   # Wrapper for the `tree` JavaScript module.
@@ -85,11 +9,19 @@ module Less
 
     def initialize(options)
       @tree = Less.instance_eval { @loader.require('less/tree') }
-      @sprockets_context = options[:importer].context
-      extend_js Sprockets::Less::Functions
     end
 
-    private
+    # Adds all of a module's public instance methods as Less functions
+    def extend_js(mod)
+      extend mod
+      mod.public_instance_methods.each do |method_name|
+        add_function(sym_to_css(method_name)) do  |tree, cxt|
+          send method_name.to_sym, unquote(cxt.toCSS())
+        end
+      end
+    end
+
+    #private
 
     # Transforms a css function name string to a (method) symbol
     def css_to_sym(str)
@@ -104,7 +36,8 @@ module Less
     # Removes quotes
     def unquote(str)
       s = str.to_s.strip
-      s =~ /^['"](.*?)['"]$/ ? $1 : s
+      s.gsub!(/["']+/, '')
+      s
     end
 
     # Creates a JavaScript anonymous function from a Ruby block
@@ -112,7 +45,8 @@ module Less
       lambda do |*args|
         # args: (this, node) v8 >= 0.10, otherwise (node)
         raise ArgumentError, "missing node" if args.empty?
-        @tree[:Anonymous].new block.call(@tree, args.last)
+        options = args.last.is_a?(::Hash) ? args.pop : {}
+        @tree[:Anonymous].new block.call(@tree, args.last, options)
       end
     end
 
@@ -126,28 +60,93 @@ module Less
       functions[name] = anonymous_function(block)
     end
 
-    # Adds all of a module's public instance methods as Less functions
-    def extend_js(mod)
-      extend mod
-      mod.public_instance_methods.each do |method_name|
-        add_function(sym_to_css(method_name)) { |tree, cxt|
-          send method_name.to_sym, unquote(cxt.toCSS())
-        }
+  end
+end
+
+::Less::Parser.class_eval do
+  attr_reader :tree
+
+  # Override the parser's initialization to improve Less `tree`
+  # with sprockets awareness
+  alias_method :initialize_without_tree, :initialize
+  alias_method :original_parse, :parse
+
+  def initialize(options={})
+    initialize_without_tree(options)
+    @tree = Less::Tree.new(options)
+  end
+
+  def string_to_hash(string, arr_sep=',', key_sep=':')
+    array = string.split(arr_sep)
+    hash = {}
+
+    array.each do |e|
+      key_value = e.split(key_sep)
+      hash[key_value[0].strip.to_sym] = key_value[1].strip
+    end
+
+    hash
+  end
+
+  def matches str, pattern
+    arr = []
+    offset = 0
+    while (offset < str.size && (m = str.match pattern))
+      offset = m.offset(0).first
+      arr << { match: m, index: offset } unless m.nil?
+      str = str[(offset + 1)..-1]
+    end
+
+    arr.uniq {|hash| hash[:match] }
+  end
+
+  def parse_functions(less, options = {})
+    @tree.functions.keys.each do |function_name|
+      next unless @tree.respond_to?(@tree.css_to_sym(function_name))
+      function_regex =  /#{function_name}\(([^\)]*)\)/
+      function_data = matches(less, function_regex)
+      function_data.each do |hash|
+        captures = hash[:match].captures.map {|a| a.split(',').map {|b| b.gsub(/["']+/, '') } }.flatten.compact.uniq
+        params = []
+        captures.each do |param|
+          if param.include?("@{")
+            variables = param.scan(/@\{([a-zA-Z0-9\-\_]+)\}/).flatten.compact.uniq
+            variables.each do |variable|
+              variable_value = less[1.. hash[:index]].scan(/@#{variable}\:\s+["']{1}([^"']+)["']{1}/).flatten.compact.uniq.last.to_s
+              param = param.gsub(/@\{#{variable}\}/, variable_value)
+            end
+          end
+          param = param.gsub(/@(?=\w+)/, '')
+          if param.include?(':')
+            options.merge!(string_to_hash(param))
+          else
+            params << param
+          end
+        end
+        params << options  if options.keys.size > 0
+        begin
+          css = @tree.send(@tree.css_to_sym(function_name), *params)
+        rescue =>  e
+          raise [e, function_name, params, less].inspect
+        end
+        less.gsub!(function_regex, css)
       end
     end
 
+    less
   end
 
-  class Parser
-    
-    attr_reader :tree
-
-    # Override the parser's initialization to improve Less `tree`
-    # with sprockets awareness
-    alias_method :initialize_without_tree, :initialize
-    def initialize(options={})
-      initialize_without_tree(options)
-      @tree = Less::Tree.new(options)
+  def parse(less)
+    uri_rx = /\s+url\((.*)\)/
+    urls = less.scan(uri_rx).flatten.compact.uniq
+    if urls.size > 0
+      urls.each do |url|
+        original_url = url.dup
+        url = parse_functions(url, from_url: true)
+        less.gsub!(original_url, url)
+      end
     end
+    parse_functions(less)
+    original_parse(less)
   end
 end

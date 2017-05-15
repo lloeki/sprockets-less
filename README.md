@@ -1,10 +1,10 @@
 # sprockets-less
 
-**Better Less integration with [Sprockets 2.x](http://github.com/sstephenson/sprockets)**
+**Better Less integration with [Sprockets 2.x and 3.x](http://github.com/sstephenson/sprockets)**
 
 [![Build Status](https://travis-ci.org/lloeki/sprockets-less.svg?branch=master)](https://travis-ci.org/lloeki/sprockets-less)
 
-When using Sprockets 2.x with Less you will eventually run into a pretty big issue. `//= require` directives will not allow Less mixins, variables, etc. to be shared between files. So you'll try to use `@import`, and that'll also blow up in your face. `sprockets-less` aims to fix this.
+When using Sprockets 2.x or 3.x with Less you will eventually run into a pretty big issue. `//= require` directives will not allow Less mixins, variables, etc. to be shared between files. So you'll try to use `@import`, and that'll also blow up in your face. `sprockets-less` aims to fix this.
 
 _Note: If you use Rails 3.1, you may want to use the [less-rails gem](http://github.com/rails/less-rails). But if you want to use Sprockets and Less anywhere else, like Sinatra, use `sprockets-less`._
 
@@ -95,4 +95,3 @@ Please note that these helpers are only available server-side, and something lik
 ## License
 
 Sprocket::Less is released under the MIT license. See LICENSE file for details.
-
