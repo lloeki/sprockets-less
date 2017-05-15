@@ -3,12 +3,11 @@ sudo: false
 
 cache: bundler
 
-bundler_args: --no-deployment --binstubs=./bin
-
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - gem install bundler
   - gem update bundler
+  - rm -f .bundle/config
 
 script:
   - echo $BUNDLE_GEMFILE
