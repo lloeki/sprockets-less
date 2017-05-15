@@ -66,7 +66,6 @@ end
 ::Less::Parser.class_eval do
   attr_reader :tree
 
-
   # Override the parser's initialization to improve Less `tree`
   # with sprockets awareness
   alias_method :initialize_without_tree, :initialize
@@ -86,19 +85,20 @@ end
       hash[key_value[0].strip.to_sym] = key_value[1].strip
     end
 
-    return hash
+    hash
   end
 
   def matches str, pattern
-   arr = []
-   offset = 0
-   while (offset < str.size && (m = str.match pattern))
-       offset = m.offset(0).first
-       arr << { match: m, index: offset } unless m.nil?
-       str = str[(offset + 1)..-1]
-   end
-   arr.uniq {|hash| hash[:match] }
- end
+    arr = []
+    offset = 0
+    while (offset < str.size && (m = str.match pattern))
+      offset = m.offset(0).first
+      arr << { match: m, index: offset } unless m.nil?
+      str = str[(offset + 1)..-1]
+    end
+
+    arr.uniq {|hash| hash[:match] }
+  end
 
   def parse_functions(less, options = {})
     @tree.functions.keys.each do |function_name|
@@ -109,29 +109,30 @@ end
         captures = hash[:match].captures.map {|a| a.split(',').map {|b| b.gsub(/["']+/, '') } }.flatten.compact.uniq
         params = []
         captures.each do |param|
-            if param.include?("@{")
-             variables = param.scan(/@\{([a-zA-Z0-9\-\_]+)\}/).flatten.compact.uniq
-             variables.each do |variable|
+          if param.include?("@{")
+            variables = param.scan(/@\{([a-zA-Z0-9\-\_]+)\}/).flatten.compact.uniq
+            variables.each do |variable|
               variable_value = less[1.. hash[:index]].scan(/@#{variable}\:\s+["']{1}([^"']+)["']{1}/).flatten.compact.uniq.last.to_s
-               param = param.gsub(/@\{#{variable}\}/, variable_value)
-              end
+              param = param.gsub(/@\{#{variable}\}/, variable_value)
             end
-            param = param.gsub(/@(?=\w+)/, '')
-            if param.include?(':')
-              options.merge!(string_to_hash(param))
-            else
-              params << param
-            end
+          end
+          param = param.gsub(/@(?=\w+)/, '')
+          if param.include?(':')
+            options.merge!(string_to_hash(param))
+          else
+            params << param
+          end
         end
         params << options  if options.keys.size > 0
         begin
-        css = @tree.send(@tree.css_to_sym(function_name), *params)
+          css = @tree.send(@tree.css_to_sym(function_name), *params)
         rescue =>  e
           raise [e, function_name, params, less].inspect
         end
         less.gsub!(function_regex, css)
       end
     end
+
     less
   end
 

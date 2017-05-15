@@ -34,11 +34,13 @@ module Sprockets
   rescue LoadError; end
 
   if Sprockets::Less::Utils.version_of_sprockets >= 3
-    # We need this only for Sprockets > 3 in order to be able to register anything.
-    # For Sprockets 2.x , although the file and the module name exist,
-    # they can't be used because it will give errors about undefined methods, because this is included only on Sprockets::Base
-    # and in order to use them we would have to subclass it and define methods to expire cache and other methods for registration ,
-    # which are not needed since Sprockets already  knows about that using the environment instead internally
+    # We need this only for Sprockets > 3 in order to be able to register
+    # anything. For Sprockets 2.x , although the file and the module name exist,
+    # they can't be used because it will give errors about undefined methods,
+    # because this is included only on Sprockets::Base and in order to use them
+    # we would have to subclass it and define methods to expire cache
+    # and other methods for registration , which are not needed since Sprockets
+    # already knows about that using the environment instead internally
     require 'sprockets/processing'
     extend Sprockets::Processing
   end
