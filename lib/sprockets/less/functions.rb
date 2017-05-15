@@ -15,9 +15,9 @@ module Less
     def extend_js(mod)
       extend mod
       mod.public_instance_methods.each do |method_name|
-        add_function(sym_to_css(method_name)) { |tree, cxt|
+        add_function(sym_to_css(method_name)) do  |tree, cxt|
           send method_name.to_sym, unquote(cxt.toCSS())
-        }
+        end
       end
     end
 

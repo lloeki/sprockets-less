@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Sprockets
   module Less
-    # class useful for registering engines, tranformers, preprocessors and conpressors for sprockets
+    # class useful for registering engines, tranformers, preprocessors and compressors for sprockets
     # depending on the version of sprockets
     class Registration
       attr_reader :klass, :sprockets_version, :registration_instance
@@ -15,14 +15,14 @@ module Sprockets
       def run
         require_libraries
         case @sprockets_version
-          when 2...3
-            register_sprockets_legacy
-          when 3...4
-            register_sprockets_v3
-          when 4...5
-            register_sprockets_v4
-          else
-            raise "Version #{Sprockets::Less::Utils.full_version_of_sprockets} is not supported"
+        when 2...3
+          register_sprockets_legacy
+        when 3...4
+          register_sprockets_v3
+        when 4...5
+          register_sprockets_v4
+        else
+          raise "Version #{Sprockets::Less::Utils.full_version_of_sprockets} is not supported"
         end
       end
 
@@ -31,7 +31,7 @@ module Sprockets
         require 'sprockets/less/functions'
       end
 
-    private
+      private
 
       def require_standard_libraries(version = @sprockets_version)
         %w(cache_store functions importer less_template).each do |filename|

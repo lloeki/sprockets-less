@@ -38,6 +38,7 @@ module Sprockets
         def digest(options)
           options.delete_if { |_key, value| value.is_a?(Pathname) } if options.is_a?(Hash)
           options = options.to_s unless options.is_a?(Hash)
+
           if defined?(Sprockets::DigestUtils)
             Sprockets::DigestUtils.digest(options)
           else
@@ -52,6 +53,7 @@ module Sprockets
             # Set it to the default external (without verifying)
             data.force_encoding(Encoding.default_external) if Encoding.default_external
           end
+
           data
         end
 
@@ -94,6 +96,7 @@ module Sprockets
 
         def quote(contents, opts = {})
           return contents if opts[:unquote]
+
           contents = contents.gsub(/\n\s*/, ' ')
           quote = opts[:quote]
 
@@ -128,9 +131,9 @@ module Sprockets
           end
 
           contents = contents.gsub(/\n(?![a-fA-F0-9\s])/, "\\a").gsub("\n", "\\a ")
+
           "#{quote}#{contents}#{quote}"
         end
-
       end
     end
   end
