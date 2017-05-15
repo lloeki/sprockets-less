@@ -19,6 +19,7 @@ rvm:
 - 2.2.2
 - 2.2.3
 - 2.3.1
+- 2.4.1
 env:
  - RAILS_ENV=test RACK_ENV=test "bundler=1.13.1"
 notifications:
