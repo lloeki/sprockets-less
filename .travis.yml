@@ -10,9 +10,6 @@ before_install:
   - gem install bundler
   - gem update bundler
 
-install:
-  - bundle install --path vendor/bundle
-
 script:
   - echo $BUNDLE_GEMFILE
   - bundle exec rake
