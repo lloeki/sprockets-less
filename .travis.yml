@@ -14,14 +14,14 @@ install:
   - bundle install --path vendor/bundle
 
 script:
-   - echo $BUNDLE_GEMFILE
-   - bundle exec rake
+  - echo $BUNDLE_GEMFILE
+  - bundle exec rake
 rvm:
-- 2.2.2
-- 2.2.3
-- 2.3.1
-- 2.4.1
+  - 2.2.2
+  - 2.2.3
+  - 2.3.1
+  - 2.4.1
 env:
- - RAILS_ENV=test RACK_ENV=test
+  - RAILS_ENV=test RACK_ENV=test
 notifications:
   email: false
